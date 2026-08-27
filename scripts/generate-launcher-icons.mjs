@@ -1,19 +1,18 @@
 /**
- * Gera os PNGs de launcher do Android a partir da marca EduIT.
- *
- * O glifo ocupa ~55% do quadro: launchers como MIUI/POCO ainda encolhem o
- * ícone dentro de um círculo branco, e com menos que isso o "E" fica ilegível.
+ * Gera PNGs de launcher a partir de branding/bwipo-mark.png.
+ * Uso: npm run icons
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const resDir = path.join(root, "mobile/android/app/src/main/res");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const markPath = path.join(root, "branding", "bwipo-mark.png");
+const resDir = path.join(root, "android", "app", "src", "main", "res");
 
-const NAVY = "#0d1b3e";
-const GLYPH_SPAN = 560;
+const BLACK = { r: 0, g: 0, b: 0, alpha: 255 };
+const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
 
 const launcher = {
   "mipmap-mdpi": 48,
@@ -31,63 +30,106 @@ const foreground = {
   "mipmap-xxxhdpi": 432,
 };
 
-function eGlyph(span) {
-  const stemW = span * 0.327;
-  const barH = span * 0.265;
-  const height = span * 1.184;
-  const x = (1024 - span) / 2;
-  const y = (1024 - height) / 2;
-  const midW = span * 0.806;
-  const r = span * 0.036;
-  return `
-    <g fill="#ffffff">
-      <rect x="${x}" y="${y}" width="${stemW}" height="${height}" rx="${r}" />
-      <rect x="${x}" y="${y}" width="${span}" height="${barH}" rx="${r}" />
-      <rect x="${x}" y="${(1024 - barH) / 2}" width="${midW}" height="${barH}" rx="${r}" />
-      <rect x="${x}" y="${y + height - barH}" width="${span}" height="${barH}" rx="${r}" />
-    </g>`;
+if (!fs.existsSync(markPath)) {
+  throw new Error(`Marca não encontrada: ${markPath}`);
 }
 
-const GLOW = `<radialGradient id="glow" cx="80%" cy="80%" r="55%">
-    <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.32" />
-    <stop offset="60%" stop-color="#06b6d4" stop-opacity="0.05" />
-    <stop offset="100%" stop-color="#06b6d4" stop-opacity="0" />
-  </radialGradient>`;
-
-function iconSvg({ round }) {
-  const clip = round
-    ? `<circle cx="512" cy="512" r="512" />`
-    : `<rect x="0" y="0" width="1024" height="1024" rx="230" ry="230" />`;
-  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <defs><clipPath id="mask">${clip}</clipPath>${GLOW}</defs>
-  <g clip-path="url(#mask)">
-    <rect x="0" y="0" width="1024" height="1024" fill="${NAVY}" />
-    <rect x="0" y="0" width="1024" height="1024" fill="url(#glow)" />
-    ${eGlyph(GLYPH_SPAN)}
-  </g>
-</svg>`);
+async function squircleMask(size) {
+  const r = Math.round(size * 0.225);
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+      <rect width="${size}" height="${size}" rx="${r}" ry="${r}" fill="white"/>
+    </svg>`,
+  );
 }
 
-const foregroundSvg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  ${eGlyph(GLYPH_SPAN)}
-</svg>`);
+async function circleMask(size) {
+  const c = size / 2;
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+      <circle cx="${c}" cy="${c}" r="${c}" fill="white"/>
+    </svg>`,
+  );
+}
 
-const square = iconSvg({ round: false });
-const round = iconSvg({ round: true });
+async function fullIcon(size) {
+  return sharp(markPath)
+    .resize(size, size, { fit: "contain", background: BLACK })
+    .png()
+    .toBuffer();
+}
+
+/** Foreground adaptativo: marca no centro (~66%) para a máscara do launcher. */
+async function adaptiveForeground(size) {
+  const inner = Math.round(size * 0.66);
+  const pad = Math.round((size - inner) / 2);
+  const glyph = await sharp(markPath)
+    .resize(inner, inner, { fit: "contain", background: BLACK })
+    .png()
+    .toBuffer();
+  return sharp({
+    create: { width: size, height: size, channels: 4, background: BLACK },
+  })
+    .composite([{ input: glyph, left: pad, top: pad }])
+    .png()
+    .toBuffer();
+}
+
+async function notifyIcon(size) {
+  const { data, info } = await sharp(markPath)
+    .resize(size, size, { fit: "contain", background: TRANSPARENT })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const out = Buffer.from(data);
+  for (let i = 0; i < out.length; i += 4) {
+    const r = out[i];
+    const g = out[i + 1];
+    const b = out[i + 2];
+    const a = out[i + 3];
+    const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    if (a > 20 && lum > 18) {
+      out[i] = 255;
+      out[i + 1] = 255;
+      out[i + 2] = 255;
+      out[i + 3] = 255;
+    } else {
+      out[i] = 255;
+      out[i + 1] = 255;
+      out[i + 2] = 255;
+      out[i + 3] = 0;
+    }
+  }
+  return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } })
+    .png()
+    .toBuffer();
+}
 
 for (const [folder, size] of Object.entries(launcher)) {
   const dir = path.join(resDir, folder);
   fs.mkdirSync(dir, { recursive: true });
-  await sharp(square).resize(size, size).png().toFile(path.join(dir, "ic_launcher.png"));
-  await sharp(round).resize(size, size).png().toFile(path.join(dir, "ic_launcher_round.png"));
+  const base = await fullIcon(size);
+  await sharp(base)
+    .composite([{ input: await squircleMask(size), blend: "dest-in" }])
+    .png()
+    .toFile(path.join(dir, "ic_launcher.png"));
+  await sharp(base)
+    .composite([{ input: await circleMask(size), blend: "dest-in" }])
+    .png()
+    .toFile(path.join(dir, "ic_launcher_round.png"));
 }
 
 for (const [folder, size] of Object.entries(foreground)) {
   const dir = path.join(resDir, folder);
-  await sharp(foregroundSvg)
-    .resize(size, size)
-    .png()
-    .toFile(path.join(dir, "ic_launcher_foreground.png"));
+  fs.mkdirSync(dir, { recursive: true });
+  const fg = await adaptiveForeground(size);
+  await sharp(fg).png().toFile(path.join(dir, "ic_launcher_foreground.png"));
 }
 
-console.log("launcher icons gerados");
+const drawable = path.join(resDir, "drawable");
+fs.mkdirSync(drawable, { recursive: true });
+await sharp(await notifyIcon(96))
+  .png()
+  .toFile(path.join(drawable, "ic_stat_notify.png"));
+
+console.log("ícones de launcher gerados a partir de branding/bwipo-mark.png");

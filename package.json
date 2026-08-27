@@ -4,6 +4,7 @@
   "private": true,
   "description": "Casca Capacitor (Android) do EduIT CRM — aponta para a URL do frontend",
   "scripts": {
+    "icons": "node scripts/generate-launcher-icons.mjs",
     "sync": "npx cap sync",
     "copy": "npx cap copy",
     "update": "npx cap update",
@@ -30,6 +31,7 @@
     "@capgo/capacitor-native-biometric": "^7.6.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.6.8"
+    "@capacitor/cli": "^7.6.8",
+    "sharp": "^0.35.4"
   }
 }
