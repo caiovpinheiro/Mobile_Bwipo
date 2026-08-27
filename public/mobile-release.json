@@ -1,0 +1,7 @@
+{
+  "versionCode": 9,
+  "versionName": "1.0.8",
+  "apkUrl": "https://app.bwipo.com/releases/bwipo-1.0.8.apk",
+  "force": true,
+  "notes": "App de producao aponta para https://bwipo.com/. Instala separado do Bwipo DEV."
+}

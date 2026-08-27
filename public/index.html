@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bwipo — App</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, sans-serif;
+      background: #070b18;
+      color: #f8fafc;
+    }
+    main { max-width: 28rem; padding: 1.5rem; text-align: center; }
+    p { color: #94a3b8; line-height: 1.5; }
+    a { color: #7dd3fc; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Bwipo</h1>
+    <p>Aplicativo de produção. Abre o CRM em <code>bwipo.com</code>.</p>
+    <p id="status">Carregando…</p>
+  </main>
+  <script>
+    fetch("/mobile-release.json", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var el = document.getElementById("status");
+        if (data.apkUrl) {
+          el.innerHTML = '<a href="' + data.apkUrl + '">Baixar APK · v' + data.versionName + "</a>";
+        } else {
+          el.textContent = "APK ainda não publicado.";
+        }
+      })
+      .catch(function () {
+        document.getElementById("status").textContent = "Manifesto indisponível.";
+      });
+  </script>
+</body>
+</html>
