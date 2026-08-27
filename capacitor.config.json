@@ -1,16 +1,15 @@
 {
   "appId": "br.com.eduit.crm",
-  "appName": "Bwipo",
+  "appName": "Bwipo DEV",
   "webDir": "www",
   "server": {
-    "url": "https://bwipo.com/",
-    "hostname": "bwipo.com",
+    "url": "https://crm-dev-frontend.ca31ey.easypanel.host/",
+    "hostname": "crm-dev-frontend.ca31ey.easypanel.host",
     "cleartext": false,
     "androidScheme": "https",
     "allowNavigation": [
-      "bwipo.com",
-      "www.bwipo.com",
-      "*.bwipo.com",
+      "crm-dev-frontend.ca31ey.easypanel.host",
+      "*.ca31ey.easypanel.host",
       "localhost",
       "127.0.0.1",
       "www.facebook.com",
