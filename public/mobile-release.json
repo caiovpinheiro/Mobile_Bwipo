@@ -1,7 +1,7 @@
 {
-  "versionCode": 8,
-  "versionName": "1.0.7-dev",
-  "apkUrl": "",
+  "versionCode": 9,
+  "versionName": "1.0.8-dev",
+  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/eduit-crm-1.0.8-dev.apk",
   "force": false,
-  "notes": "APK DEV ainda nao publicado. Branch DEV_APK aponta para o frontend DEV."
+  "notes": "APK DEV aponta para https://crm-dev-frontend.ca31ey.easypanel.host/"
 }
