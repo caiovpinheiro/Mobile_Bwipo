@@ -30,11 +30,17 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var el = document.getElementById("status");
-        if (data.apkUrl) {
-          el.innerHTML = '<a href="' + data.apkUrl + '">Baixar APK · v' + data.versionName + "</a>";
-        } else {
+        if (!data.apkUrl) {
           el.textContent = "APK ainda não publicado.";
+          return;
         }
+        var href = data.apkUrl;
+        try {
+          var u = new URL(href, window.location.origin);
+          href = u.pathname + u.search;
+        } catch (e) { /* keep href */ }
+        el.innerHTML =
+          '<a href="' + href + '" download>Baixar APK · v' + data.versionName + "</a>";
       })
       .catch(function () {
         document.getElementById("status").textContent = "Manifesto indisponível.";
