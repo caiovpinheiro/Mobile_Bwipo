@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Sempre copia o capacitor.config.json da branch atual. O arquivo em
+// android/app/src/main/assets é gitignored e sobrava o de produção no
+// APK DEV (WebView em bwipo.com — login de DEV falhava).
+tasks.register('copyCapacitorConfig', Copy) {
+    from file("${rootDir}/../capacitor.config.json")
+    into file("${projectDir}/src/main/assets")
+}
+tasks.named('preBuild').configure { dependsOn 'copyCapacitorConfig' }
+
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
@@ -13,8 +22,8 @@ android {
         applicationId "br.com.eduit.crm.dev"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 13
-        versionName "1.0.12-dev"
+        versionCode 14
+        versionName "1.0.13-dev"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

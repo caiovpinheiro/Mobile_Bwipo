@@ -1,7 +1,7 @@
 {
-  "versionCode": 13,
-  "versionName": "1.0.12-dev",
-  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/bwipo-dev-1.0.12.apk",
-  "force": false,
-  "notes": "Ícone do app com o logo Bwipo completo, sem recorte."
+  "versionCode": 14,
+  "versionName": "1.0.13-dev",
+  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/bwipo-dev-1.0.13.apk",
+  "force": true,
+  "notes": "Corrige o WebView do Bwipo DEV para o frontend DEV. Use o login da conta de DEV."
 }
