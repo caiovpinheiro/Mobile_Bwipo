@@ -52,17 +52,15 @@ async function circleMask(size) {
   );
 }
 
-async function fullIcon(size) {
-  return sharp(markPath)
-    .resize(size, size, { fit: "contain", background: BLACK })
-    .png()
-    .toBuffer();
-}
+/** Fração do canvas ocupada pelo “b”.
+ *  Launchers tipo MIUI/POCO ainda encolhem o ícone num círculo branco;
+ *  66% (área segura oficial) ainda recorta o glifo neste mark vertical. */
+const LAUNCHER_GLYPH = 0.68;
+const ADAPTIVE_GLYPH = 0.48;
 
-/** Foreground adaptativo: marca no centro (~66%) para a máscara do launcher. */
-async function adaptiveForeground(size) {
-  const inner = Math.round(size * 0.66);
-  const pad = Math.round((size - inner) / 2);
+async function paddedMark(size, ratio) {
+  const inner = Math.round(size * ratio);
+  const pad = Math.max(0, Math.round((size - inner) / 2));
   const glyph = await sharp(markPath)
     .resize(inner, inner, { fit: "contain", background: BLACK })
     .png()
@@ -73,6 +71,15 @@ async function adaptiveForeground(size) {
     .composite([{ input: glyph, left: pad, top: pad }])
     .png()
     .toBuffer();
+}
+
+async function fullIcon(size) {
+  return paddedMark(size, LAUNCHER_GLYPH);
+}
+
+/** Foreground adaptativo: “b” bem dentro da área segura (72/108). */
+async function adaptiveForeground(size) {
+  return paddedMark(size, ADAPTIVE_GLYPH);
 }
 
 async function notifyIcon(size) {
