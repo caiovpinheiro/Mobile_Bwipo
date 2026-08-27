@@ -1,0 +1,7 @@
+{
+  "versionCode": 8,
+  "versionName": "1.0.7-dev",
+  "apkUrl": "",
+  "force": false,
+  "notes": "APK DEV ainda nao publicado. Branch DEV_APK aponta para o frontend DEV."
+}
