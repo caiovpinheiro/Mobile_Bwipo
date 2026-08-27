@@ -10,11 +10,11 @@ android {
     namespace "br.com.eduit.crm"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "br.com.eduit.crm"
+        applicationId "br.com.eduit.crm.dev"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9
-        versionName "1.0.8-dev"
+        versionCode 10
+        versionName "1.0.9-dev"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -64,9 +64,13 @@ dependencies {
 apply from: 'capacitor.build.gradle'
 
 try {
-    def servicesJSON = file('google-services.json')
-    if (servicesJSON.text) {
+    def servicesJSON = file("google-services.json")
+    def appId = "br.com.eduit.crm.dev"
+    // FCM do projeto atual é só para br.com.eduit.crm. Sem client DEV, o plugin quebra o build.
+    if (servicesJSON.text && servicesJSON.text.contains("\"package_name\": \"${appId}\"")) {
         apply plugin: 'com.google.gms.google-services'
+    } else {
+        logger.warn("google-services.json sem client para ${appId} — FCM desligado neste APK DEV.")
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")

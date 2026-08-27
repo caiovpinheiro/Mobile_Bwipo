@@ -1,7 +1,7 @@
 {
-  "versionCode": 9,
-  "versionName": "1.0.8-dev",
-  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/eduit-crm-1.0.8-dev.apk",
+  "versionCode": 10,
+  "versionName": "1.0.9-dev",
+  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/bwipo-dev-1.0.9.apk",
   "force": false,
-  "notes": "APK DEV aponta para https://crm-dev-frontend.ca31ey.easypanel.host/"
+  "notes": "App separado (br.com.eduit.crm.dev), nome Bwipo DEV. Aponta para o frontend DEV."
 }
