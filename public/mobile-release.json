@@ -1,7 +1,7 @@
 {
-  "versionCode": 12,
-  "versionName": "1.0.11",
-  "apkUrl": "https://crm-mobile.7w7dai.easypanel.host/releases/bwipo-1.0.11.apk",
+  "versionCode": 13,
+  "versionName": "1.0.12",
+  "apkUrl": "https://crm-mobile.7w7dai.easypanel.host/releases/bwipo-1.0.12.apk",
   "force": false,
-  "notes": "Status bar e rodape edge-to-edge (safe-area), alinhado ao PWA iPhone."
+  "notes": "Status bar do sistema acima do CRM (relógio/wifi), como no WhatsApp."
 }
