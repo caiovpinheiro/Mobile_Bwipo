@@ -1,7 +1,15 @@
 package br.com.eduit.crm;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.WebView;
+
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -19,6 +27,11 @@ public class MainActivity extends BridgeActivity {
     registerPlugin(AppUpdatePlugin.class);
     super.onCreate(savedInstanceState);
 
+    // Faixa do sistema (hora/wifi/bateria) acima do CRM: o WebView
+    // desenha atras da status bar e ganha padding = altura da barra.
+    WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+    getWindow().setStatusBarColor(Color.TRANSPARENT);
+
     // NextAuth (cookies Secure + SameSite=Lax) no WebView remoto: sem isto
     // o login "parece" OK e a sessão some no próximo navigation → volta
     // pra /login. Aceitar cookies (incl. 3rd-party no WebView) é requisito
@@ -26,7 +39,16 @@ public class MainActivity extends BridgeActivity {
     CookieManager cookieManager = CookieManager.getInstance();
     cookieManager.setAcceptCookie(true);
     if (this.bridge != null && this.bridge.getWebView() != null) {
-      cookieManager.setAcceptThirdPartyCookies(this.bridge.getWebView(), true);
+      WebView webView = this.bridge.getWebView();
+      cookieManager.setAcceptThirdPartyCookies(webView, true);
+      webView.setBackgroundColor(Color.parseColor("#0d1b3e"));
+      ViewCompat.setOnApplyWindowInsetsListener(webView, (View v, WindowInsetsCompat windowInsets) -> {
+        Insets status = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
+        int minTop = Math.round(47f * v.getResources().getDisplayMetrics().density);
+        v.setPadding(0, Math.max(status.top, minTop), 0, 0);
+        return windowInsets;
+      });
+      ViewCompat.requestApplyInsets(webView);
     }
   }
 
