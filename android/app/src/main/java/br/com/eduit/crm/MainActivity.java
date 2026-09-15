@@ -27,10 +27,16 @@ public class MainActivity extends BridgeActivity {
     registerPlugin(AppUpdatePlugin.class);
     super.onCreate(savedInstanceState);
 
-    // Faixa do sistema (hora/wifi/bateria) acima do CRM: o WebView
-    // desenha atras da status bar e ganha padding = altura da barra.
+    // Android 15 (targetSdk 35) desenha edge-to-edge. Padding no WebView
+    // não empurra o HTML; o inset vai no container (android.R.id.content)
+    // para a faixa hora/wifi/bateria ficar FORA do CRM.
     WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
     getWindow().setStatusBarColor(Color.TRANSPARENT);
+    reserveStatusBar();
+    View content = findViewById(android.R.id.content);
+    if (content != null) {
+      content.post(this::reserveStatusBar);
+    }
 
     // NextAuth (cookies Secure + SameSite=Lax) no WebView remoto: sem isto
     // o login "parece" OK e a sessão some no próximo navigation → volta
@@ -42,14 +48,29 @@ public class MainActivity extends BridgeActivity {
       WebView webView = this.bridge.getWebView();
       cookieManager.setAcceptThirdPartyCookies(webView, true);
       webView.setBackgroundColor(Color.parseColor("#0d1b3e"));
-      ViewCompat.setOnApplyWindowInsetsListener(webView, (View v, WindowInsetsCompat windowInsets) -> {
-        Insets status = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-        int minTop = Math.round(47f * v.getResources().getDisplayMetrics().density);
-        v.setPadding(0, Math.max(status.top, minTop), 0, 0);
-        return windowInsets;
-      });
-      ViewCompat.requestApplyInsets(webView);
     }
+  }
+
+  private void reserveStatusBar() {
+    View content = findViewById(android.R.id.content);
+    if (content == null) {
+      return;
+    }
+    content.setBackgroundColor(Color.parseColor("#0d1b3e"));
+    content.setClipToPadding(true);
+    ViewCompat.setOnApplyWindowInsetsListener(content, (View v, WindowInsetsCompat windowInsets) -> {
+      Insets bars = windowInsets.getInsets(
+          WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
+      int minTop = Math.round(47f * v.getResources().getDisplayMetrics().density);
+      int top = Math.max(bars.top, minTop);
+      v.setPadding(0, top, 0, 0);
+      return new WindowInsetsCompat.Builder(windowInsets)
+          .setInsets(
+              WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout(),
+              Insets.NONE)
+          .build();
+    });
+    ViewCompat.requestApplyInsets(content);
   }
 
   // O WebView só grava os cookies em disco de tempos em tempos. Ao fechar o
