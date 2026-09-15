@@ -1,7 +1,13 @@
 package br.com.eduit.crm;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Window;
 import android.webkit.CookieManager;
+
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -18,6 +24,20 @@ public class MainActivity extends BridgeActivity {
     // (ver AGENT.md § Atualizar sem APK).
     registerPlugin(AppUpdatePlugin.class);
     super.onCreate(savedInstanceState);
+
+    // Edge-to-edge: o CRM (safe-area CSS) desenha atrás da status bar e
+    // do home indicator — mesmo contrato do PWA iPhone (black-translucent).
+    Window window = getWindow();
+    WindowCompat.setDecorFitsSystemWindows(window, false);
+    window.setStatusBarColor(Color.TRANSPARENT);
+    window.setNavigationBarColor(Color.TRANSPARENT);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      window.setNavigationBarContrastEnforced(false);
+    }
+    WindowInsetsControllerCompat insets =
+        WindowCompat.getInsetsController(window, window.getDecorView());
+    insets.setAppearanceLightStatusBars(false);
+    insets.setAppearanceLightNavigationBars(false);
 
     // NextAuth (cookies Secure + SameSite=Lax) no WebView remoto: sem isto
     // o login "parece" OK e a sessão some no próximo navigation → volta
