@@ -57,7 +57,9 @@ public class MainActivity extends BridgeActivity {
       return;
     }
     content.setBackgroundColor(Color.parseColor("#0d1b3e"));
-    content.setClipToPadding(true);
+    if (content instanceof android.view.ViewGroup) {
+      ((android.view.ViewGroup) content).setClipToPadding(true);
+    }
     ViewCompat.setOnApplyWindowInsetsListener(content, (View v, WindowInsetsCompat windowInsets) -> {
       Insets bars = windowInsets.getInsets(
           WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
