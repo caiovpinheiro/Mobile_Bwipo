@@ -1,7 +1,7 @@
 {
-  "versionCode": 14,
-  "versionName": "1.0.13-dev",
-  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/bwipo-dev-1.0.13.apk",
+  "versionCode": 15,
+  "versionName": "1.0.14-dev",
+  "apkUrl": "https://crm-apk-dev.ca31ey.easypanel.host/releases/bwipo-dev-1.0.14.apk",
   "force": true,
-  "notes": "Corrige o WebView do Bwipo DEV para o frontend DEV. Use o login da conta de DEV."
+  "notes": "Status bar e rodape edge-to-edge (safe-area), alinhado ao PWA iPhone."
 }
